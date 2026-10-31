@@ -1,0 +1,43 @@
+# Continuous Integration: build and test on every pull request and on every
+# push to main. Replaces "click Build in IntelliJ, then skip the tests".
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21 (same version as prod, no more "works on Dave's laptop")
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven          # caches ~/.m2 between runs, keeps the build fast
+
+      - name: Build and run tests
+        run: mvn --batch-mode --no-transfer-progress verify
+
+      - name: Publish test results
+        if: always()           # upload even when tests fail, so we can see why
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: target/surefire-reports/
+
+      - name: Keep the built jar as a build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: contoso-orders-jar
+          path: target/*.jar
