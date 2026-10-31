@@ -36,8 +36,8 @@ Run locally: `mvn spring-boot:run` then `curl localhost:8080/orders`.
 
 ## Modernisation roadmap (mirrors the interview answer)
 
-1. **Clarify and assess** – map the path to production, baseline DORA metrics. *(this README)*
-2. **Quick wins** – Git with protected `main`, automated build + unit tests on every PR, one scripted deployment to a test environment.
+1. **Clarify and assess** – map the path to production, baseline DORA metrics. ✅ *(this README)*
+2. **Quick wins** ✅ – Git with pull requests to `main`, automated build + unit tests on every PR ([#1](../../pull/1)), one scripted deployment to a test environment with automatic rollback ([#2](../../pull/2)). Branch protection on `main` needs the repo to be public or GitHub Pro.
 3. **Build the pipeline** – containerise; dev → test → prod stages; build once, promote the same artefact; gated prod.
 4. **Infrastructure as Code** – Terraform so test matches prod.
 5. **Security and quality** – quality gate, dependency and image scanning, secrets out of code, managed identity.
