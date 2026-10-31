@@ -37,7 +37,7 @@ Run locally: `mvn spring-boot:run` then `curl localhost:8080/orders`.
 ## Modernisation roadmap (mirrors the interview answer)
 
 1. **Clarify and assess** – map the path to production, baseline DORA metrics. ✅ *(this README)*
-2. **Quick wins** ✅ – Git with pull requests to `main`, automated build + unit tests on every PR ([#1](../../pull/1)), one scripted deployment to a test environment with automatic rollback ([#2](../../pull/2)). Branch protection on `main` needs the repo to be public or GitHub Pro.
+2. **Quick wins** ✅ – Git with pull requests to `main`, automated build + unit tests on every PR ([#1](../../pull/1)), one scripted deployment to a test environment with automatic rollback ([#2](../../pull/2)). `main` is protected by the `protect-main` ruleset: pull request required, **Build and test** check must be green, no direct or force pushes.
 3. **Build the pipeline** – containerise; dev → test → prod stages; build once, promote the same artefact; gated prod.
 4. **Infrastructure as Code** – Terraform so test matches prod.
 5. **Security and quality** – quality gate, dependency and image scanning, secrets out of code, managed identity.
@@ -52,3 +52,18 @@ Run locally: `mvn spring-boot:run` then `curl localhost:8080/orders`.
 | Lead time for changes | 2–6 weeks (waits for the release window) |
 | Change failure rate | ~67% (4 of last 6) |
 | Time to restore service | Hours to days (manual rollback by one person) |
+
+## Step 2 status (quick wins)
+
+| Quick win | Where | State |
+|---|---|---|
+| Unit and API tests, run by `mvn verify` | `src/test/java` | done ([#1](../../pull/1)) |
+| CI build + tests on every pull request and push to `main` | `.github/workflows/ci.yml` | done ([#1](../../pull/1)) |
+| Repeatable scripted deployment with health check and automatic rollback | `deploy/` | done ([#2](../../pull/2)) |
+| Protected `main` | GitHub ruleset `protect-main` | done |
+
+The `protect-main` ruleset means nobody, including the repo owner, can push straight to `main`,
+force-push it, or delete it. Every change goes through a pull request, the **Build and test**
+check has to be green on the latest commit, and review threads have to be resolved. The CI
+workflow and the deploy script are what get promoted in step 3; the ruleset is what makes
+them mandatory rather than optional.
