@@ -46,11 +46,22 @@ docker inspect -f '{{.State.Health.Status}}' <container>   # Docker's own health
 The image is built in two stages (Maven build, then a JRE-only Alpine runtime), runs as a
 non-root user and carries a `HEALTHCHECK` on `/orders/health`. See the comments in `Dockerfile`.
 
+Every push to `main` also builds the image in CI and publishes it (step 3.2):
+
+```bash
+docker pull ghcr.io/app-teck/contoso-orders:latest      # newest main
+docker pull ghcr.io/app-teck/contoso-orders:<short-sha> # one exact commit
+```
+
+Pull requests build the image too, but do not push it, so a broken `Dockerfile` fails the PR.
+The image job only runs after the tests pass, and the tag is the Git SHA: this is the single
+artefact that later gets promoted through the environments.
+
 ## Modernisation roadmap (mirrors the interview answer)
 
 1. **Clarify and assess** – map the path to production, baseline DORA metrics. ✅ *(this README)*
 2. **Quick wins** ✅ – Git with pull requests to `main`, automated build + unit tests on every PR ([#1](../../pull/1)), one scripted deployment to a test environment with automatic rollback ([#2](../../pull/2)). `main` is protected by the `protect-main` ruleset: pull request required, **Build and test** check must be green, no direct or force pushes.
-3. **Build the pipeline** – 3.1 containerise ✅ · 3.2 CI builds and publishes the image · 3.3 dev → test → prod stages, same image promoted, gated prod · 3.4 Flyway for the SQL scripts.
+3. **Build the pipeline** – 3.1 containerise ✅ · 3.2 CI builds and publishes the image ✅ · 3.3 dev → test → prod stages, same image promoted, gated prod · 3.4 Flyway for the SQL scripts.
 4. **Infrastructure as Code** – Terraform so test matches prod.
 5. **Security and quality** – quality gate, dependency and image scanning, secrets out of code, managed identity.
 6. **People** – docs and runbooks the client's team can own.
