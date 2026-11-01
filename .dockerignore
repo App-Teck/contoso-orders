@@ -1,0 +1,11 @@
+# What NOT to send to Docker when building. Keeps the build context small and
+# stops local junk (and secrets) from leaking into image layers.
+.git
+.github
+.idea
+*.iml
+target
+deploy
+sql
+*.md
+.dockerignore
